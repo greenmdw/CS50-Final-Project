@@ -47,36 +47,48 @@ def login():
             return render_template("login.html", message="Invalid username or password")
     return render_template("login.html")
 
-@app.route("/register", method=["GET", "POST"])
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
         confirm = request.form.get("confirm")
+        language = request.form.get("language")
+        country = request.form.get("country")
+        skills = request.form.getlist("skills")
 
         if not username:
-            return render_template("apology.html", message="Username is required")
+            return apology("Username is required", 400)
         if not password:
-            return render_template("apology.html", message="Password is required")
+            return apology("Password is required", 400)
         if password != confirm:
-            return render_template("apology.html", message="Password do not match")
+            return apology("Passwords do not match", 400)
 
-    db.execute("SELECT * FROM users WHERE = ?", (username,))
-    existing_user = db.fetchone()
-    if existing_user:
-        return render_template("apology.html", message="Username already taken")
-    
-    hashed_pw = generate_password_hash(password)
-    db.execute("INSERT INTO users (username, password) VALUE (?, ?)"), (username, hashed_pw)
-    conn.commit()
+        conn = get_db()
+        db = conn.cursor()
+        db.execute("SELECT * FROM users WHERE username = ?", (username,))
+        existing_user = db.fetchone()
+        if existing_user:
+            conn.close()
+            return apology("Username already taken", 400)
+        
+        hashed_pw = generate_password_hash(password)
+        db.execute(
+            "INSERT INTO users (username, password_hash, language, country, skills) VALUES (?, ?, ?, ?, ?)", 
+            (username, hashed_pw, language, country, ",".join(skills))
+        )
+        conn.commit()
 
-    db.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = db.fetchone()
-    session["user_id"] = user[0]
+        db.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user = db.fetchone()
+        session["user_id"] = user["id"]
+        conn.close()
 
-    return redirect("/account")
+        return redirect("/account")
 
-return render_template("registration.html")
+    return render_template("register.html")
+
 
 
 @app.route("/idea")
@@ -100,7 +112,6 @@ def account():
 @app.route("/apology")
 def show_apology():
     return render_template("apology.html", top=400, bottom="Something went wrong")
-
 
 if __name__ == "__main__":
     app.run(debug=True)

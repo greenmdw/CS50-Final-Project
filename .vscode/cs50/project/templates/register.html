@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+      <p class="text-gray-600">Join our community of innovators</p>
+    </div>
+
+    <form action="{{ url_for('register') }}" method="post" class="space-y-6">
+      <!-- We use email as a username from the server so I setted up name="username" -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+        <input name="username" type="email" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+        <input name="password" type="password" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+        <input name="confirm" type="password" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Language</label>
+        <select name="preferred_language" class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+        <input name="country" type="text" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Skills (select any)</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center">
+            <input name="skills" value="Idea Bank" class="mr-2" type="checkbox">
+            <span class="text-sm">Idea Bank</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="PM" class="mr-2" type="checkbox">
+            <span class="text-sm">PM</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="Front-end" class="mr-2" type="checkbox">
+            <span class="text-sm">Front-end</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="Back-end" class="mr-2" type="checkbox">
+            <span class="text-sm">Back-end</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="UI/UX Designer" class="mr-2" type="checkbox">
+            <span class="text-sm">UI/UX Designer</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="AI Engineer" class="mr-2" type="checkbox">
+            <span class="text-sm">AI Engineer</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="Mechanical Engineer" class="mr-2" type="checkbox">
+            <span class="text-sm">Mechanical Engineer</span>
+          </label>
+          <label class="flex items-center">
+            <input name="skills" value="Fund Raiser" class="mr-2" type="checkbox">
+            <span class="text-sm">Fund Raiser</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full font-medium rounded-lg bg-blue-600 text-white py-2 px-4 hover:bg-blue-700">
+        Create Account
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-800">Already have an account? Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
