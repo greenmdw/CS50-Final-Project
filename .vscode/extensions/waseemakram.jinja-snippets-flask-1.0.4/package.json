@@ -1,0 +1,47 @@
+{
+	"name": "jinja-snippets-flask",
+	"displayName": "Jinja Snippets flask",
+	"description": "Jinja Snippets Flask is a powerful and comprehensive extension designed to boost your productivity when working with Flask and Jinja in Visual Studio Code.",
+	"version": "1.0.4",
+	"icon": "logo.png",
+	"publisher": "WaseemAkram",
+	"sponsor": {
+		"url": "https://www.patreon.com/hackerwasii"
+	},
+	"repository": "https://github.com/evildevill/Jinja-snippets-vsce.git",
+	" bugs": {
+		"url": "https://github.com/evildevill/Jinja-snippets-vsce/issues"
+	},
+	"homepage": "https://hackerwasii.com",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.65.0"
+	},
+	"keywords": [
+		"jinja",
+		"jinja2",
+		"jinja3",
+		"templates",
+		"template-engine",
+		"snippets",
+		"python",
+		"flask"
+	],
+	"contributes": {
+		"snippets": [
+			{
+				"language": "jinja",
+				"path": "./snippets/snippets.code-snippets"
+			},
+			{
+				"language": "html",
+				"path": "./snippets/snippets.code-snippets"
+			}
+		]
+	},
+	"__metadata": {
+		"installedTimestamp": 1755409258893,
+		"targetPlatform": "undefined",
+		"size": 34689
+	}
+}

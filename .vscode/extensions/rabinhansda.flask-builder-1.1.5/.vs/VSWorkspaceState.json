@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\images",
+    "\\src",
+    "\\src\\commands",
+    "\\src\\registerCommand",
+    "\\src\\test",
+    "\\src\\types",
+    "\\src\\utils"
+  ],
+  "SelectedNode": "\\src\\commands\\createPythonModule.ts",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,0 +1,125 @@
+{
+	"name": "flask-builder",
+	"displayName": "Flask Builder",
+	"description": "A Visual Studio Code extension to quickly scaffold a Flask application with necessary modules, Docker support, Swagger for API documentation, integration and unit tests.",
+	"version": "1.1.5",
+	"author": {
+		"name": "Rabin Hansda",
+		"email": "rabinhansda24@live.com"
+	},
+	"publisher": "RabinHansda",
+	"icon": "logo.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rabinhansda24/flask-builder"
+	},
+	"engines": {
+		"vscode": "^1.91.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Snippets",
+		"Testing"
+	],
+	"keywords": [
+		"Flask",
+		"Python",
+		"Web Development",
+		"Scaffold",
+		"Boilerplate",
+		"Docker",
+		"Testing",
+		"Pytest",
+		"MVC",
+		"Blueprints",
+		"Configuration",
+		"VSCode",
+		"Extension",
+		"Snippets",
+		"Backend",
+		"API"
+	],
+	"pricing": "Free",
+	"sponsor": {
+		"url": "https://buymeacoffee.com/rabinhansda"
+	},
+	"activationEvents": [],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.createPythonModule",
+				"title": "Create Python Module"
+			},
+			{
+				"command": "extension.createFlaskApp",
+				"title": "Create Flask App"
+			},
+			{
+				"command": "extension.createFlaskModule",
+				"title": "Create Flask Module"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "extension.createPythonModule",
+					"when": "explorerResourceIsFolder",
+					"group": "navigation"
+				},
+				{
+					"command": "extension.createFlaskApp",
+					"when": "explorerResourceIsFolder",
+					"group": "navigation"
+				},
+				{
+					"command": "extension.createFlaskModule",
+					"when": "explorerResourceIsFolder",
+					"group": "navigation"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "webpack",
+		"watch": "webpack --watch",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "tsc -p . && node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/chai": "^4.3.17",
+		"@types/glob": "^8.1.0",
+		"@types/mocha": "^10.0.7",
+		"@types/node": "20.x",
+		"@types/sinon": "^17.0.3",
+		"@types/vscode": "^1.91.0",
+		"@typescript-eslint/eslint-plugin": "^7.14.1",
+		"@typescript-eslint/parser": "^7.11.0",
+		"@vscode/test-cli": "^0.0.9",
+		"@vscode/test-electron": "^2.4.0",
+		"chai": "^5.1.1",
+		"copy-webpack-plugin": "^12.0.2",
+		"eslint": "^8.57.0",
+		"glob": "^11.0.0",
+		"minimatch": "^3.0.4",
+		"mocha": "^10.7.3",
+		"sinon": "^18.0.0",
+		"ts-loader": "^9.5.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.5.4",
+		"vscode-test": "^1.6.1",
+		"webpack": "^5.92.1",
+		"webpack-cli": "^5.1.4"
+	},
+	"license": "MIT",
+	"__metadata": {
+		"installedTimestamp": 1755409230630,
+		"targetPlatform": "undefined",
+		"size": 1055140
+	}
+}

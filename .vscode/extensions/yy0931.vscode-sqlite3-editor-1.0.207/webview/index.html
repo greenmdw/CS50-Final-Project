@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite3 Editor</title>
+    <script>
+        const uncaughtErrors = new Set()
+        let renderLoadErrors = () => {}
+        window.addEventListener("error", (ev) => {
+            if (window.hasScriptLoaded) { return }
+            uncaughtErrors.add(ev.error ?? ev.message)
+            renderLoadErrors()
+        })
+        window.addEventListener("unhandledrejection", (ev) => {
+            if (window.hasScriptLoaded) { return }
+            uncaughtErrors.add(ev.reason)
+            renderLoadErrors()
+        })
+
+        // `onerror="onResourceLoadFailure()"` is inserted into script tags during the build process.
+        let onResourceLoadFailure = () => {
+            if (window.hasScriptLoaded) { return }
+            if (uncaughtErrors.size > 0) { return }
+            document.querySelector("#loadingMessageSpinner").style.display = "none"
+            document.querySelector("#loadingMessage").innerText = "Failed to load resources. This issue can occur after an extension update. Please try reopening the window."
+            document.querySelector("#loadingMessage").style.color = "#d23100"
+        }
+        console.time("load")
+    </script>
+    <style>
+        /* https://loading.io/css/ */
+        .lds-ring {
+            display: inline-block;
+            position: relative;
+            width: 1em;
+            height: 1em;
+            margin-right: 0.2em;
+        }
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 1em;
+            height: 1em;
+            margin: 0.2em;
+            border: 0.2em solid gray;
+            border-radius: 50%;
+            animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: gray transparent transparent transparent;
+        }
+        .lds-ring div:nth-child(1) {
+            animation-delay: -0.45s;
+        }
+        .lds-ring div:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+        .lds-ring div:nth-child(3) {
+            animation-delay: -0.15s;
+        }
+        @keyframes lds-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        #loadingErrorReportButton {
+            background: #075985;
+            color: white;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: 0.125rem;
+        }
+        #loadingErrorReportButton:hover {
+            background: #0369a1;
+        }
+    </style>
+  <script onerror="onResourceLoadFailure()" type="module" crossorigin src="./assets/index-DtYXtRjT.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-LriLsbSV.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-CUWPOWpZ.css">
+</head>
+<body style="background: transparent; overflow-y: hidden">
+    <!-- Don't use Tailwind here in case of a loading failure of the CSS file. -->
+    <div style="opacity: 0.8; font-style: italic; position: absolute; right: 1rem; bottom: 1rem;">
+        <div id="loadingMessageSpinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        <span id="loadingMessage" style="user-select: text"><!-- Grommet Icons, "install" --><svg xmlns="http://www.w3.org/2000/svg" style="display: inline-block; opacity: 0.5; margin-right: 0.25rem; vertical-align: middle;" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M19 13.5v4L12 22l-7-4.5v-4m7 8.5v-8.5m6.5-5l-6.5-4L15.5 2L22 6zm-13 0l6.5-4L8.5 2L2 6zm13 .5L12 13l3.5 2.5l6.5-4zm-13 0l6.5 4l-3.5 2.5l-6.5-4z"/></svg>Loading resources</span>
+        <div id="loadErrorText" style="color: #d23100; max-width: 50vw; max-height: 30vh; overflow-y: auto; text-overflow: ellipsis; word-break: break-all;"></div>
+        <a id="loadingErrorReportButton" style="display: none;">Send error report</a>
+    </div>
+    <script>
+        window.editorVariables = null
+
+        renderLoadErrors = () => {
+            // "https://file .vscode-resource.vscode-cdn.net/c:/.../webview/assets/index-abcdef.js:123:456" -> "/assets/index-abcdef.js:123:456"
+            const errorText = Array.from(uncaughtErrors, (err) => {
+                if (typeof err === "object" && err !== null && "stack" in err) {
+                    return err.stack
+                }
+                return err + ""
+            }).join("\n").replace(/http.*\/webview/g, "")
+
+            document.querySelector("#loadErrorText").innerText = errorText
+
+            /** @type {HTMLAnchorElement} */
+            const loadingErrorReportButton = document.querySelector("#loadingErrorReportButton")
+            loadingErrorReportButton.style.display = "inline-block"
+            loadingErrorReportButton.href = `command:sqlite3-editor.reportError?${encodeURIComponent(JSON.stringify([errorText + "\nUser-Agent: " + navigator.userAgent]))}`
+            loadingErrorReportButton.addEventListener("click", () => {
+                loadingErrorReportButton.style.display = "none"
+            })
+        }
+        if (uncaughtErrors.size > 0) {
+            renderLoadErrors()
+        }
+    </script>
+    <script>
+        window.findWidgetBalloonSrc = "./find-widget-balloon.png"
+        window.queryEditorBalloonSrc = "./query-editor-balloon.png"
+        window.editSchemaBalloonSrc = "./edit-schema-balloon.png"
+        window.tableCommentsBalloonSrc = "./table-comments-balloon.png"
+        window.monacoPathSrc = "./node_modules/monaco-editor/min/vs"
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block main %}
+<body>
+  <div class="container">
+    <main>
+      <div class="hero-section" style="background-image: url('/static/frontimage.jpg');">
+        <div class="overlay"></div>
+        <div class="hero-content">
+          <h1>Turn Your Ideas Into Reality</h1>
+          <p>Connect with talented engineers, designers, and innovators to bring your projects to life</p>
+          <div class="hero-buttons">
+            <a class="button primary" href="/submit-idea">Submit Your Idea</a>
+            <a class="button secondary" href="/projects">Browse Projects</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-it-works-section">
+        <div class="section-content">
+          <div class="section-title">
+            <h2>How It Works</h2>
+            <p>Simple steps to launch your next big project</p>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="icon-container">
+                <i class="ri-lightbulb-line"></i>
+              </div>
+              <h3>Submit Your Idea</h3>
+              <p>Share your project concept and get AI-powered suggestions for workflow and team requirements</p>
+            </div>
+            <div class="step">
+              <div class="icon-container">
+                <i class="ri-team-line"></i>
+              </div>
+              <h3>Build Your Team</h3>
+              <p>Connect with skilled professionals who match your project needs and vision</p>
+            </div>
+            <div class="step">
+              <div class="icon-container">
+                <i class="ri-rocket-line"></i>
+              </div>
+              <h3>Launch & Collaborate</h3>
+              <p>Work together in dedicated collaboration rooms to bring your project to completion</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="find-team-section">
+        <div class="section-content">
+          <div class="section-title">
+            <h2>Find Your Perfect Team</h2>
+            <p>Connect with professionals across various disciplines</p>
+          </div>
+          <div class="team-roles">
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-lightbulb-fill"></i>
+              </div>
+              <h3>Idea Bank</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-user-star-fill"></i>
+              </div>
+              <h3>Product Manager</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-code-s-slash-fill"></i>
+              </div>
+              <h3>Frontend Developer</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-server-fill"></i>
+              </div>
+              <h3>Backend Developer</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-paint-brush-fill"></i>
+              </div>
+              <h3>UI/UX Designer</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-robot-fill"></i>
+              </div>
+              <h3>AI Engineer</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-settings-3-fill"></i>
+              </div>
+              <h3>Mechanical Engineer</h3>
+            </div>
+            <div class="role-card">
+              <div class="icon-container">
+                <i class="ri-money-dollar-circle-fill"></i>
+              </div>
+              <h3>Fund Raiser</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+{% endblock %}

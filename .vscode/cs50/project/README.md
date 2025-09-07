@@ -1,0 +1,5 @@
+# YOUR PROJECT TITLE
+#### Video Demo:  <URL HERE>
+#### Description:
+I'm conceptualizing new form of platform for the IT people.
+There are lot of people who has an idea, but don't have a skill to develop the idea. That's what my "IT Balloon" platform works for. People can post their IT ideas on the platform in order to recruit people who can actualize the idea in the real world. So basically, the posting has to include a problem to solve and basic flow chart of the system. However, many people don't know how to draw a flow chart. That's when it comes to the ChatGPT API. If the user write the problem to solve and click the ChatGPT button, it write the basic work flow of the system by it self, and suggests what kind of developers are needed for this project. When the user like the answer, he can post it on the platform with the following statements: - A problem to solve, Basic workflow, Required developers Then, other users can see the ideas and join in the project. When the posting successfully recruited all the developers, it will create a chat room for all the members include the posting owner. So they can discuss further for this projects.

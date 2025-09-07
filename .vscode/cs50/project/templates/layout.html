@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT Ballon</title>
+  <meta name="description" content="IT Ballon - Connect with talented engineers, designers, and innovators to bring your projects to life. Submit your ideas and build your dream team.">
+  <!-- Link to your main CSS file -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1">
+  <!-- Link to external fonts or icon libraries -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap">
+  <!-- You might need to link to an icon library like Remixicon for the icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <a class="logo" href="/">IT Ballon</a>
+        <nav class="navigation">
+          <a class="nav-link" href="{{ url_for('projects') }}">Browse Projects</a>
+          <a class="nav-link" href="{{ url_for('idea') }}">Submit Idea</a>
+          <a class="nav-link" href="{{ url_for('account') }}">My Account</a>
+          <a class="button-link" href="{{ url_for('login') }}">Login / Register</a>
+        </nav>
+        <button class="menu-button">
+          <i class="ri-menu-line"></i>
+        </button>
+      </div>
+    </header>
+    <main>
+    {% block main %}
+
+    {% endblock %}
+    </main>
+    <br>
+    <br>
+      <div class="cta-section">
+        <div class="cta-content">
+          <h2>Ready to Start Your Project?</h2>
+          <p>Join thousands of innovators bringing their ideas to life</p>
+          <p>&copy; 2025 IT Ballon</p>
+        </div>
+      </div> 
+  </div>
+</body>
+</html>
