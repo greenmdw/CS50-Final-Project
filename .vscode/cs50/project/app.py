@@ -35,14 +35,12 @@ def login():
             return render_template("login.html", message="Password is required")
 
         conn = get_db()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user = cur.fetchone()
+        user = conn.execute("SELECT * FROM users WHERE username= ?", (username,)).fetchone()
         conn.close()
 
-        if user and check_password_hash(user["password"], password):
+        if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
-            return redirect(url_for("account"))  
+            return redirect("/account")  
         else:
             return render_template("login.html", message="Invalid username or password")
     return render_template("login.html")
