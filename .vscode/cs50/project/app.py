@@ -104,6 +104,13 @@ def login():
         user = conn.execute("SELECT * FROM users WHERE username= ?", (username,)).fetchone()
         conn.close()
 
+        # Debugging code -----------------
+        if user and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["id"]
+            print("DEBUG session:", dict(session))  # checking session. printing on the terminal
+            return redirect(url_for("account"))
+        # Debugging code ends ------------
+
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             return redirect(url_for("account"))  
@@ -117,16 +124,83 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-@app.route("/account", methods=["GET", "POST"])
+# account function (app.py)
+@app.route("/account")
 @login_required
 def account():
-    return render_template("account.html")
+    # 세션에서 user_id 가져오기
+    user_id = session.get("user_id")
+    if not user_id:
+        # 세션이 없으면 /login으로 보내거나 에러 처리
+        return redirect(url_for("login"))
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    # 현재 로그인한 사용자 정보 가져오기
+    cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    user = cur.fetchone()
+    print("DEBUG account - fetched user:", dict(user) if user else None)
+
+    # Notifications 카운트 가져오기
+    cur.execute("SELECT COUNT(*) FROM notifications WHERE user_id = ?", (user_id,))
+    notifications_count = cur.fetchone()[0]
+    print("DEBUG account - notifications_count:", notifications_count)
+
+    conn.close()
+
+    # DB에 user가 없는 경우 안전장치
+    if not user:
+        return apology("User not found", 400)
+
+    # account.html에 user 정보와 notifications_count 전달
+    return render_template(
+        "account.html",
+        user=user,
+        notifications_count=notifications_count,
+    )
 
 
-@app.route("/idea")
+@app.route("/idea", methods=["GET", "POST"])
 @login_required
 def idea():
-    return render_template("apology.html")
+    conn = get_db()
+    cur = conn.cursor()
+
+    if request.method == "POST":
+        # 1. 폼 데이터 가져오기
+        title = request.form.get("title")
+        problem = request.form.get("problem")
+        concept = request.form.get("concept")
+        workflow = request.form.get("workflow")  # optional
+        team_members = request.form.getlist("team_members")  # 체크박스 여러 개
+        project_style = request.form.get("project_style")
+
+        # 2. 필수 항목 검증
+        if not title or not problem or not concept or not team_members or not project_style:
+            conn.close()
+            return render_template("idea.html", message="Please fill in all required fields")
+
+        # 3. team_members는 콤마로 연결
+        team_members_str = ",".join(team_members)
+
+        # 4. DB에 삽입
+        cur.execute(
+            "INSERT INTO projects (user_id, title, problem, concept, workflow, team_members, project_style) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (session["user_id"], title, problem, concept, workflow, team_members_str, project_style)
+        )
+        conn.commit()
+        conn.close()
+
+        # 5. 성공 시 페이지 리다이렉트
+        return redirect(url_for("projects"))  # projects 페이지로 이동
+
+    # GET 요청일 경우 아이디어 제출 페이지 렌더링
+    conn.close()
+    return render_template("idea.html")
+
+
 
 
 @app.route("/projects")
