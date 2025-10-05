@@ -1,9 +1,12 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required, apology
 import sqlite3
 from functools import wraps
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_API_KEY")
 
 app = Flask(__name__)
 
@@ -200,8 +203,40 @@ def idea():
     conn.close()
     return render_template("idea.html")
 
+# get the texts from the Problem and Concept input boxes to generate workflow by GPT
+@app.route("generate_workflow", methods=["POsT"])
+@login_required
+def generate_workflow():
+    # 1. Get the inputed texts from client(js form)
+    problem = request.form.get("problem", "")
+    concept = request.form.get("concept", "")
 
+    # 2. Create a prompt to send GPT
+    prompt = f"""
+    Problem to Solve: {problem}
+    Concept of the System: {concept}
 
+    Based on the context above, please explain me the System Workflow how to make the system in 500 words maximum. 
+    """
+
+    # 3. Call OpenAI API (Chat completion)
+    response = client.chat.completions.create(
+        model="gpt-5",
+        messages=[
+            {"role": "system", "concept": "You are a helpful assistant for system design."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300
+    )
+
+    # 4. Get only words from GPT responses
+    gpt_workflow = response.choices[0].message["content"]
+
+    # 5. Cut over 500 words.
+    gpt_worflow = gpt_workflow[:500]
+
+    # 6. turn the result into JSON format
+    return jsonify({"workflow": gpt_worflow})
 
 @app.route("/projects")
 @login_required
