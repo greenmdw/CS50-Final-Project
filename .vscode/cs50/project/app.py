@@ -1,14 +1,15 @@
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, apology
 import sqlite3
 from functools import wraps
-from openai import OpenAI
-
-client = OpenAI(api_key="YOUR_API_KEY")
+from dotenv import load_dotenv
+import os
+from transformers import pipeline
 
 app = Flask(__name__)
+
+generator = pipeline("text2text-generation", model="google/flan-t5-base", framework="pt")
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -72,7 +73,7 @@ def register():
         conn = get_db()
         user_exists = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
         if user_exists:
-            conn.close
+            conn.close()
             return apology("Username already take", 400) 
                
         hashed_pw = generate_password_hash(password)
@@ -107,18 +108,14 @@ def login():
         user = conn.execute("SELECT * FROM users WHERE username= ?", (username,)).fetchone()
         conn.close()
 
-        # Debugging code -----------------
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
-            print("DEBUG session:", dict(session))  # checking session. printing on the terminal
-            return redirect(url_for("account"))
-        # Debugging code ends ------------
-
-        if user and check_password_hash(user["password_hash"], password):
-            session["user_id"] = user["id"]
+            session["username"] = user["username"]   # for screen certifing you are login
+            print("DEBUG session:", dict(session))   # checking session. printing on the terminal
             return redirect(url_for("account"))  
         else:
             return render_template("login.html", message="Invalid username or password")
+        
     return render_template("login.html")
 
 
@@ -131,7 +128,7 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    # 세션에서 user_id 가져오기
+    # Get user_id from the session
     user_id = session.get("user_id")
     if not user_id:
         # 세션이 없으면 /login으로 보내거나 에러 처리
@@ -140,26 +137,36 @@ def account():
     conn = get_db()
     cur = conn.cursor()
 
-    # 현재 로그인한 사용자 정보 가져오기
+    # Get the account info from the user_id
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user = cur.fetchone()
     print("DEBUG account - fetched user:", dict(user) if user else None)
+    if not user:
+        conn.close()
+        return apology("User not found", 400)
 
-    # Notifications 카운트 가져오기
+    # Get the Project info from the user db
+    cur.execute("SELECT * FROM ideas WHERE user_id = ?", (user_id,))
+    ideas = cur.fetchall()
+    project_count = len(ideas)
+
+    # Get the notifications count info
     cur.execute("SELECT COUNT(*) FROM notifications WHERE user_id = ?", (user_id,))
     notifications_count = cur.fetchone()[0]
     print("DEBUG account - notifications_count:", notifications_count)
 
     conn.close()
 
-    # DB에 user가 없는 경우 안전장치
+    # If there is no user in the DB / safe protocol 
     if not user:
         return apology("User not found", 400)
 
-    # account.html에 user 정보와 notifications_count 전달
+    # Send data to the account.html
     return render_template(
         "account.html",
         user=user,
+        ideas=ideas,
+        project_count=project_count,        
         notifications_count=notifications_count,
     )
 
@@ -189,22 +196,21 @@ def idea():
 
         # 4. DB에 삽입
         cur.execute(
-            "INSERT INTO projects (user_id, title, problem, concept, workflow, team_members, project_style) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ideas (user_id, title, problem, concept, workflow, team_members, project_style) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (session["user_id"], title, problem, concept, workflow, team_members_str, project_style)
         )
         conn.commit()
         conn.close()
 
         # 5. 성공 시 페이지 리다이렉트
-        return redirect(url_for("projects"))  # projects 페이지로 이동
+        return redirect(url_for("browse"))  # browse 페이지로 이동
 
     # GET 요청일 경우 아이디어 제출 페이지 렌더링
     conn.close()
     return render_template("idea.html")
 
 # get the texts from the Problem and Concept input boxes to generate workflow by GPT
-@app.route("generate_workflow", methods=["POsT"])
+@app.route("/generate_workflow", methods=["POST"])
 @login_required
 def generate_workflow():
     # 1. Get the inputed texts from client(js form)
@@ -213,36 +219,62 @@ def generate_workflow():
 
     # 2. Create a prompt to send GPT
     prompt = f"""
+    You are a Project Manager who is planning how to develop a system for a software project.
+
     Problem to Solve: {problem}
     Concept of the System: {concept}
 
-    Based on the context above, please explain me the System Workflow how to make the system in 500 words maximum. 
+    Based on the context above, please explain me how to make this software system in 6 steps. Your answer has to be maximum 700 words and, should not repeat what concept and problem stated.
     """
 
     # 3. Call OpenAI API (Chat completion)
-    response = client.chat.completions.create(
-        model="gpt-5",
-        messages=[
-            {"role": "system", "concept": "You are a helpful assistant for system design."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=300
-    )
+    result = generator(prompt, max_length=800, do_sample=True)
+    workflow = result[0]["generated_text"]
 
-    # 4. Get only words from GPT responses
-    gpt_workflow = response.choices[0].message["content"]
+    # 4. Return result
+    return jsonify({"workflow": workflow[:800]})
 
-    # 5. Cut over 500 words.
-    gpt_worflow = gpt_workflow[:500]
-
-    # 6. turn the result into JSON format
-    return jsonify({"workflow": gpt_worflow})
-
-@app.route("/projects")
+@app.route("/detail/<int:idea_id>")
 @login_required
-def projects():
-    return render_template("apology.html")
+def detail(idea_id):
+    conn = get_db()
+    cur = conn.cursor()
 
+    # 1. Get specific ID
+    cur.execute("SELECT ideas.*, users.username FROM ideas JOIN users ON ideas.user_id = users.id WHERE ideas.id = ?", (idea_id,))
+    idea = cur.fetchone()
+
+    conn.close()
+
+    # 2. If no exist, show 404 error
+    if not idea:
+        return render_template("apology.html", message="Idea not found")
+
+    # 3. Check whether the login user is the owner of the idea
+    if idea["user_id"] == session["user_id"]:
+        user_role = "Owner"
+    else: 
+        user_role = "Watcher"
+
+    # 4. Swtich team_members to a list which were saved seperately by comma 
+    team_members = idea["team_members"].split(".")
+
+    return render_template("detail.html", idea=idea, user_role=user_role, team_members=team_members)
+
+
+@app.route("/browse", methods=["GET", "POST"])
+def browse():
+    conn = get_db()
+    cur = conn.cursor()
+
+    # Get all the data from the ideas table
+    cur.execute("SELECT * FROM ideas ORDER BY created_at DESC")
+    ideas = cur.fetchall()
+
+    # count project numbers
+    project_count = len(ideas)
+
+    return render_template("browse.html", ideas=ideas, project_count=project_count)
 
 @app.route("/apology")
 def show_apology():

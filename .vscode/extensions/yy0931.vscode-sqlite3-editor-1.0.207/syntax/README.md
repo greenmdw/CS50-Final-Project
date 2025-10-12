@@ -1,1 +1,0 @@
-This directory contains SVG files generated from the pikchr files in https://sqlite.org/docsrc/dir?ci=tip&name=art/syntax
