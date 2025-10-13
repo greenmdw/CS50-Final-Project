@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block main %}
-
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Banner Image -->
         <div class="relative bg-cover bg-center bg-no-repeat h-64" style="background-image: url({{ url_for('static', filename='meetingdetail.jpg') }});">            
             <div class="absolute inset-0 bg-blue-900/70"></div>
             <div class="relative p-8 h-full flex items-end">
                 <div class="text-white">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Recruiting</span>
-                        <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">{{ idea.proejct_style }}</span>
+                        <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">{{ idea.project_style }}</span>
                         <span class="px-3 py-1 bg-green-600 rounded-full text-xs font-medium">Your Role: {{ user_role }}</span>
                     </div>
                     <h1 class="text-4xl font-bold mb-2">{{ idea.title }}</h1>
@@ -22,49 +22,77 @@
                 </div>
             </div>
         </div>
+
         <div class="p-8">
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-8">
-                    <section>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Problem to Solve</h2>
-                        <p class="text-gray-700 leading-relaxed">{{ idea.problem }}</p>
-                    </section>
-                    <section>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-4">System Concept</h2>
-                        <p class="text-gray-700 leading-relaxed">{{ idea.concept }}</p>
-                    </section>
-                    {% if idea.workflow %}
-                    <section>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-4">System Workflow</h2>
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <pre class="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">{{ idea.workflow }}</pre>
-                        </div>
-                    </section>
-                    {% endif %}
-                </div>
-                <div class="space-y-6">
+            <!-- Idea Sections -->
+            <div class="space-y-8">
+                <section>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Problem to Solve</h2>
+                    <p class="text-gray-700 leading-relaxed">{{ idea.problem }}</p>
+                </section>
+                <section>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">System Concept</h2>
+                    <p class="text-gray-700 leading-relaxed">{{ idea.concept }}</p>
+                </section>
+                {% if idea.workflow %}
+                <section>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">System Workflow</h2>
                     <div class="bg-gray-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Project Status</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-gray-600">Team Members</span>
-                                <span class="font-semibold"> {{ team_members|length }}</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-blue-600 h-3 rounded-full transition-all" style="width: {{ (team_members|length / 5 * 100)|int }}%;"></div>
-                            </div>
-                            <div class="text-sm text-gray-500">{{ 5 - (team_members|length) }} positions remaining</div>
-                            <ul class="list-disc pl-5 tet-gray-700 text-sm">
-                            {% for member in team_members %}
-                                <li>{{ member }}</li>
-                            {% endfor %}
-                            </ul>
-                        </div>
+                        <pre class="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">{{ idea.workflow }}</pre>
                     </div>
-                </div>
+                </section>
+                {% endif %}
+
+                <!-- Team Members & Join Section (Page Bottom) -->
+                <section class="mt-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Join Project</h2>
+                        <form id="join-form" method="POST" action="{{ url_for('join_idea', idea_id=idea['id']) }}">
+                            <div class="space-y-4">
+                                {% for role in team_members %}
+                                    <div class="flex items-center gap-4">
+                                        <input type="radio" name="role" id="role-{{ loop.index }}" value="{{ role }}"
+                                            class="form-radio h-5 w-5 text-blue-600"
+                                            {% if team_status[role] or user_role=="Owner" %} disabled {% endif %}>
+                                        <label for="role-{{ loop.index }}" class="flex-1">
+                                            {{ role }}
+                                            {% if team_status[role] %}- {{ team_status[role] }} joined{% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" id="join-btn" {% if user_role %} disabled {% endif %} class="mt-4 px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Join</button>
+                        </form>
+                    <!-- Progress Bar -->
+                    <div class="mt-6 w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full transition-all" style="width: {{ (team_members|length / 5 * 100)|int }}%;"></div>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-2">{{ 5 - (team_members|length) }} positions remaining</div>
+                </section>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+// Enable join button only if the corresponding radio is checked
+document.querySelectorAll('.join-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const roleRadio = document.querySelector(`input[name="role"][value="${btn.dataset.role}"]`);
+        if (!roleRadio.checked) {
+            e.preventDefault();
+            alert("Please select the role first");
+        }
+    });
+});
+
+// Single selection radio automatically highlights corresponding join button
+document.querySelectorAll('input[name="role"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        document.querySelectorAll('.join-btn').forEach(btn => {
+            btn.disabled = !(btn.dataset.role === radio.value);
+        });
+    });
+});
+
+</script>
 {% endblock %}
